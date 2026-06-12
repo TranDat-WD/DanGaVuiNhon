@@ -3,6 +3,7 @@ let screenWidth = window.innerWidth;
 let screenHeight = window.innerHeight;
 
 let mPosX = 0;
+let score = 0;
 
 const ctx = canvas.getContext("2d");
 
@@ -20,6 +21,8 @@ window.addEventListener("resize", () => {
   canvas.height = screenHeight - 100;
 });
 
+// Class
+
 class chicken {
   constructor() {
     this.x = Math.random() * (screenWidth - 50) + 50;
@@ -32,7 +35,7 @@ class chicken {
     this.spd = 1.5;
     this.ofset = -50;
     this.image = new Image();
-    this.image.src = "src/img/chicken.png";
+    this.image.src = "src/img/round3/chicken.png";
     this.imageLoaded = false;
     this.size = 125;
 
@@ -100,9 +103,9 @@ class chicken {
   draw() {
     if (this.imageLoaded) {
       if (this.spd < 0) {
-        this.image.src = "src/img/chicken.png";
+        this.image.src = "src/img/round3/chicken.png";
       } else {
-        this.image.src = "src/img/chicken-fliped.png";
+        this.image.src = "src/img/round3/chicken-fliped.png";
       }
       ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
     } else {
@@ -120,7 +123,7 @@ class egg {
     this.say = saysList[Math.floor(Math.random() * 8)];
     this.spd = 1;
     this.image = new Image();
-    this.image.src = "src/img/egg.png";
+    this.image.src = "src/img/round3/egg.png";
     this.imageLoaded = false;
     this.size = 40;
     this.ofset = 25;
@@ -136,7 +139,21 @@ class egg {
       this.x = chicken1.x;
       this.y = chicken1.y + chicken1.size;
       this.say = saysList[Math.floor(Math.random() * 8)];
-      console.log(this.say);
+    } else if (
+      this.y >= basket1.y &&
+      this.x > basket1.x - basket1.size / 2 &&
+      this.x < basket1.x + basket1.size / 2
+    ) {
+      if (checkAns(this.say) == true) {
+        score += 10;
+        console.log("score: " + score);
+      } else {
+        score -= 5;
+        console.log("score: " + score);
+      }
+      this.x = chicken1.x;
+      this.y = chicken1.y + chicken1.size;
+      this.say = saysList[Math.floor(Math.random() * 8)];
     }
   }
 
@@ -203,7 +220,7 @@ class basket {
     this.x = mPosX;
     this.y = 550;
     this.image = new Image();
-    this.image.src = "src/img/basket.png";
+    this.image.src = "src/img/round3/basket.png";
     this.imageLoaded = false;
     this.size = 125;
 
@@ -233,6 +250,8 @@ class basket {
   }
 }
 
+// Functions
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   chicken1.update();
@@ -247,6 +266,29 @@ function animate() {
   basket1.draw();
   requestAnimationFrame(animate);
 }
+
+function checkAns(ans) {
+  let strAns = "";
+  for (let i in ans) {
+    strAns += ans[i] + " ";
+  }
+  strAns = strAns.trim();
+  const answer = [
+    "Hai cạnh bên bằng nhau",
+    "Hai đường chéo bằng nhau",
+    "Các cạnh đối bằng nhau",
+    "Các góc đối bằng nhau",
+    "Hai đường chéo cắt nhau tại trung điểm mỗi đường",
+  ];
+  for (let i in answer) {
+    if (strAns === answer[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Events
 
 const saysList = [
   ["Hai cạnh bên bằng nhau"],
