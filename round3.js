@@ -123,7 +123,7 @@ class egg {
   constructor(posX, posY) {
     this.x = posX;
     this.y = posY;
-    this.say = saysList[Math.floor(Math.random() * 8)];
+    this.say = saysList[quotePos];
     this.spd = 2;
     this.image = new Image();
     this.image.src = "src/img/round3/egg.png";
@@ -139,9 +139,13 @@ class egg {
   update() {
     this.y = this.y + this.spd;
     if (this.y < 0 || this.y + this.size > canvas.height) {
-      this.x = chicken1.x;
-      this.y = chicken1.y + chicken1.size;
-      this.say = saysList[Math.floor(Math.random() * 8)];
+      saysList.splice(quotePos, 1);
+      if (saysList.length != 0) {
+        quotePos = Math.floor(Math.random() * saysList.length);
+        this.say = saysList[quotePos];
+        this.x = chicken1.x;
+        this.y = chicken1.y + chicken1.size;
+      }
     } else if (
       this.y >= basket1.y &&
       this.x > basket1.x - basket1.size / 2 &&
@@ -149,14 +153,26 @@ class egg {
     ) {
       if (checkAns(this.say) == true) {
         score += 10;
+        checks.push(new check(basket1.x + basket1.size / 2, basket1.y, true));
+        setTimeout(() => {
+          checks.splice(0, 1);
+        }, 1000);
         pScore.textContent = "Điểm: " + score;
       } else {
         score -= 5;
+        checks.push(new check(basket1.x + basket1.size / 2, basket1.y, false));
+        setTimeout(() => {
+          checks.splice(0, 1);
+        }, 1000);
         pScore.textContent = "Điểm: " + score;
       }
-      this.x = chicken1.x;
-      this.y = chicken1.y + chicken1.size;
-      this.say = saysList[Math.floor(Math.random() * 8)];
+      saysList.splice(quotePos, 1);
+      if (saysList.length != 0) {
+        quotePos = Math.floor(Math.random() * saysList.length);
+        this.say = saysList[quotePos];
+        this.x = chicken1.x;
+        this.y = chicken1.y + chicken1.size;
+      }
     }
   }
 
@@ -253,6 +269,23 @@ class basket {
   }
 }
 
+class check {
+  constructor(x, y, answer) {
+    this.x = x;
+    this.y = y;
+    this.answer = answer;
+  }
+  draw() {
+    ctx.fillStyle = "rgb(255, 255, 255)";
+    ctx.font = "bold 50px serif";
+    if (this.answer == true) {
+      ctx.fillText("+10", this.x, this.y);
+    } else {
+      ctx.fillText("-5", this.x, this.y);
+    }
+  }
+}
+
 // Functions
 
 function animate() {
@@ -261,11 +294,14 @@ function animate() {
   chicken1.draw();
   chicken1.drawRect();
   chicken1.drawText();
-  if (started == true) {
+  if (started == true && saysList.length > 0) {
     egg1.update();
     egg1.draw();
     egg1.drawRect();
     egg1.drawText();
+  }
+  for (let i in checks) {
+    checks[i].draw();
   }
   basket1.update();
   basket1.draw();
@@ -295,9 +331,10 @@ function checkAns(ans) {
 
 // Events
 
+const checks = [];
 let started = false;
 
-const saysList = [
+const saysListOriginal = [
   ["Hai cạnh bên bằng nhau"],
   ["Hai đường chéo bằng nhau"],
   ["Các cạnh đối bằng nhau"],
@@ -308,6 +345,9 @@ const saysList = [
   ["Bốn cạnh bằng nhau"],
 ];
 
+let saysList = [...saysListOriginal];
+let quotePos = Math.floor(Math.random() * saysList.length);
+
 const chicken1 = new chicken();
 const egg1 = new egg(chicken1.x, chicken1.y + chicken1.size);
 const basket1 = new basket();
@@ -316,8 +356,11 @@ animate();
 beginBtn.addEventListener("click", () => {
   if (started == false) {
     started = true;
+    saysList = [...saysListOriginal];
+    quotePos = Math.floor(Math.random() * saysList.length);
     egg1.x = chicken1.x;
     egg1.y = chicken1.y + chicken1.size;
+    egg1.say = saysList[quotePos];
     beginBtn.innerText = "Dừng trò chơi";
   } else {
     started = false;
