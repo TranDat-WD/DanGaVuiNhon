@@ -38,7 +38,7 @@ class chicken {
     this.spd = 1.5;
     this.ofset = -50;
     this.image = new Image();
-    this.image.src = "../src/img/round3/chicken.png";
+    this.image.src = "src/img/round3/chicken.png";
     this.imageLoaded = false;
     this.size = 125;
 
@@ -106,9 +106,9 @@ class chicken {
   draw() {
     if (this.imageLoaded) {
       if (this.spd < 0) {
-        this.image.src = "../src/img/round3/chicken.png";
+        this.image.src = "src/img/round3/chicken.png";
       } else {
-        this.image.src = "../src/img/round3/chicken-fliped.png";
+        this.image.src = "src/img/round3/chicken-fliped.png";
       }
       ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
     } else {
@@ -126,7 +126,7 @@ class egg {
     this.say = saysList[Math.floor(Math.random() * 8)];
     this.spd = 1;
     this.image = new Image();
-    this.image.src = "../src/img/round3/egg.png";
+    this.image.src = "src/img/round3/egg.png";
     this.imageLoaded = false;
     this.size = 40;
     this.ofset = 25;
@@ -223,7 +223,7 @@ class basket {
     this.x = mPosX;
     this.y = 550;
     this.image = new Image();
-    this.image.src = "../src/img/round3/basket.png";
+    this.image.src = "src/img/round3/basket.png";
     this.imageLoaded = false;
     this.size = 125;
 
