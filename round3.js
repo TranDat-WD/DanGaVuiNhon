@@ -124,7 +124,7 @@ class egg {
     this.x = posX;
     this.y = posY;
     this.say = saysList[Math.floor(Math.random() * 8)];
-    this.spd = 1;
+    this.spd = 1.5;
     this.image = new Image();
     this.image.src = "src/img/round3/egg.png";
     this.imageLoaded = false;
