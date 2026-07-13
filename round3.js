@@ -2,17 +2,12 @@ const canvas = document.getElementById("theCanvas");
 let screenWidth = window.innerWidth;
 let screenHeight = window.innerHeight;
 
-const socket = io();
-
 const pScore = document.querySelector("#pScore");
 const beginBtn = document.getElementById("beginBtn");
 const hostBtn = document.getElementById("hostButton");
 
 let mPosX = 0;
 let score = 0;
-
-const uid = localStorage.getItem("playerId");
-const adress = localStorage.getItem("playerRoom");
 
 const ctx = canvas.getContext("2d");
 
@@ -295,19 +290,6 @@ class check {
 
 // Functions
 
-async function roundChange(round) {
-  const response = await fetch("/changeRound", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      roomAdress: adress,
-      round: round,
-    }),
-  });
-}
-
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   chicken1.update();
@@ -349,23 +331,6 @@ function checkAns(ans) {
   return false;
 }
 
-async function updScore(finalScore) {
-  const response = await fetch("/updateScore", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      uid: uid,
-      roomAdress: adress,
-      score: finalScore,
-    }),
-  });
-
-  const result = await response.json();
-  console.log(result.score);
-}
-
 // Events
 
 const checks = [];
@@ -403,24 +368,4 @@ beginBtn.addEventListener("click", () => {
     started = false;
     beginBtn.innerText = "Bắt đầu trò chơi";
   }
-});
-
-if (uid == 1) {
-  hostBtn.style.opacity = 1;
-  hostBtn.style.pointerEvents = "all";
-}
-
-socket.on("roundChangeS", (data) => {
-  const adrs = data.adress;
-  const round = data.round;
-  if (adress == adrs) {
-    localStorage.setItem("playerId", uid);
-    localStorage.setItem("playerRoom", adress);
-    updScore(score);
-    window.location.href = `/round${round}`;
-  }
-});
-
-hostBtn.addEventListener("click", () => {
-  roundChange(4);
 });
