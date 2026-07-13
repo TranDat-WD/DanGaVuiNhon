@@ -2,11 +2,17 @@ const canvas = document.getElementById("theCanvas");
 let screenWidth = window.innerWidth;
 let screenHeight = window.innerHeight;
 
+const socket = io();
+
 const pScore = document.querySelector("#pScore");
 const beginBtn = document.getElementById("beginBtn");
+const hostBtn = document.getElementById("hostButton");
 
 let mPosX = 0;
 let score = 0;
+
+const uid = localStorage.getItem("playerId");
+const adress = localStorage.getItem("playerRoom");
 
 const ctx = canvas.getContext("2d");
 
@@ -31,12 +37,13 @@ class chicken {
     this.x = Math.random() * (screenWidth - 50) + 50;
     this.y = 30;
     this.say = [
-      "Vì hình chữ nhật cũng là một hình bình hành,",
-      "hình thang cân, em hãy cho biết tính chất",
-      "của hình chữ nhật?",
+      "Vì hình chữ nhật cũng là",
+      "một hình bình hành, hình",
+      "thang cân, em hãy cho biết",
+      "tính chất của hình chữ nhật?",
     ];
     this.spd = 1.5;
-    this.ofset = -50;
+    this.ofset = 20;
     this.image = new Image();
     this.image.src = "src/img/round3/chicken.png";
     this.imageLoaded = false;
@@ -58,21 +65,21 @@ class chicken {
 
   drawRect() {
     ctx.beginPath();
-    ctx.fillStyle = "rgb(133, 118, 80)";
+    ctx.fillStyle = "rgb(229, 224, 211)";
     if (this.x + this.size + 10 + this.size * 3.2 < screenWidth) {
       ctx.roundRect(
         this.x + this.size + 10,
         this.y - 5 - this.ofset,
-        this.size * 3.2,
-        this.size * 0.55,
+        this.size * 3.35,
+        this.size * 1.25,
         15,
       );
     } else {
       ctx.roundRect(
         this.x - this.size * 3.2 - 10,
         this.y - 5 - this.ofset,
-        this.size * 3.2,
-        this.size * 0.65,
+        this.size * 3.35,
+        this.size * 1.25,
         15,
       );
     }
@@ -80,22 +87,22 @@ class chicken {
   }
 
   drawText() {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.font = "20px serif";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.font = "36px serif";
     let line = 1;
     for (let i of this.say) {
       if (this.x + this.size + 10 + this.size * 3.2 < screenWidth) {
         ctx.fillText(
           String(i),
           this.x + this.size + 20,
-          this.y + 20 * line - this.ofset,
+          this.y + 32 * line - this.ofset,
           this.size * 5,
         );
       } else {
         ctx.fillText(
           String(i),
           this.x - this.size * 3.2,
-          this.y + 20 * line - this.ofset,
+          this.y + 32 * line - this.ofset,
           this.size * 5,
         );
       }
@@ -178,21 +185,21 @@ class egg {
 
   drawRect() {
     ctx.beginPath();
-    ctx.fillStyle = "rgb(133, 118, 80)";
+    ctx.fillStyle = "rgb(229, 224, 211)";
     if (this.x + this.size + 10 + this.size * 5.5 < screenWidth) {
       ctx.roundRect(
         this.x + this.size + 10,
         this.y - this.ofset,
-        this.size * 5.5,
-        this.size * 1.25,
+        this.size * 7,
+        this.size * 1.5,
         15,
       );
     } else {
       ctx.roundRect(
-        this.x - this.size * 5.5 - 10,
+        this.x - this.size * 7 - 10,
         this.y - this.ofset,
-        this.size * 5.5,
-        this.size * 1.25,
+        this.size * 7,
+        this.size * 1.5,
         15,
       );
     }
@@ -200,23 +207,23 @@ class egg {
   }
 
   drawText() {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.font = "20px serif";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.font = "30px serif";
     let line = 1;
     for (let i of this.say) {
       if (this.x + this.size + 10 + this.size * 5.5 < screenWidth) {
         ctx.fillText(
           String(i),
           this.x + this.size + 20,
-          this.y + 20 * line - this.ofset,
-          this.size * 5,
+          this.y + 25 * line - this.ofset,
+          this.size * 6.5,
         );
       } else {
         ctx.fillText(
           String(i),
-          this.x - this.size * 5 - 20,
-          this.y + 20 * line - this.ofset,
-          this.size * 5,
+          this.x - this.size * 6.5 - 20,
+          this.y + 25 * line - this.ofset,
+          this.size * 6.5,
         );
       }
       line++;
@@ -288,6 +295,19 @@ class check {
 
 // Functions
 
+async function roundChange(round) {
+  const response = await fetch("/changeRound", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      roomAdress: adress,
+      round: round,
+    }),
+  });
+}
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   chicken1.update();
@@ -329,6 +349,23 @@ function checkAns(ans) {
   return false;
 }
 
+async function updScore(finalScore) {
+  const response = await fetch("/updateScore", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      uid: uid,
+      roomAdress: adress,
+      score: finalScore,
+    }),
+  });
+
+  const result = await response.json();
+  console.log(result.score);
+}
+
 // Events
 
 const checks = [];
@@ -366,4 +403,24 @@ beginBtn.addEventListener("click", () => {
     started = false;
     beginBtn.innerText = "Bắt đầu trò chơi";
   }
+});
+
+if (uid == 1) {
+  hostBtn.style.opacity = 1;
+  hostBtn.style.pointerEvents = "all";
+}
+
+socket.on("roundChangeS", (data) => {
+  const adrs = data.adress;
+  const round = data.round;
+  if (adress == adrs) {
+    localStorage.setItem("playerId", uid);
+    localStorage.setItem("playerRoom", adress);
+    updScore(score);
+    window.location.href = `/round${round}`;
+  }
+});
+
+hostBtn.addEventListener("click", () => {
+  roundChange(4);
 });
